@@ -1,0 +1,32 @@
+# API 키 / 환경변수
+.env
+*.env
+
+# 학습 데이터 및 체크포인트
+runs/
+datasets/
+*.pth
+*.pkl
+*.npy
+*.bin
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# 로그 및 출력
+*.log
+*.txt
+output/
+HDS_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 빌드
+build/
+install/
+log/
