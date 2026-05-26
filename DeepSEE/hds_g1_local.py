@@ -236,7 +236,10 @@ def infer_deepsee(model, ts2vec, norm_stats, frame_bgr):
 
     with torch.no_grad():
         out = model(pd, ts)
-    return float(out.item())
+    val = float(out.item())
+    if not np.isfinite(val):
+        return None
+    return val
 
 
 # ── Image Quality Guardrail ───────────────────────────────────────────────
@@ -256,7 +259,10 @@ def image_quality_guardrail(frame_bgr):
 
 def get_frame():
     try:
-        return cv2.imread('/dev/shm/latest_frame.jpg')
+        data = open('/dev/shm/latest_frame.jpg', 'rb').read()
+        arr  = np.frombuffer(data, np.uint8)
+        img  = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        return img
     except Exception:
         return None
 
@@ -267,6 +273,8 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
     ema     = [0.0]
 
     def norm_running(val):
+        if not np.isfinite(val):
+            return ema[0]
         raw_buf.append(val)
         arr = np.array(raw_buf)
         mn, mx = arr.min(), arr.max()
@@ -310,6 +318,8 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
                     delta_sym = symbolic.get_delta(ds_score)
                     delta_hw  = max(0.0, G - 0.20) * W_HW
                     hds_score = float(np.clip(ds_score + delta_sym + delta_hw, 0, 1))
+                    if not np.isfinite(hds_score):
+                        hds_score = 0.0
                     alert     = hds_score >= THRESHOLD
                     infer_count += 1
 
