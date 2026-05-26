@@ -230,7 +230,7 @@ def infer_deepsee(model, ts2vec, norm_stats, frame_bgr):
     if psd_np is None:
         return None
 
-    pd = torch.tensor(psd_np, dtype=torch.float32).permute(1, 0, 2, 3).unsqueeze(0)
+    pd = torch.tensor(psd_np, dtype=torch.float32).unsqueeze(0)  # (1, 4, 3, 96, 128)
 
     with torch.no_grad():
         out = model(pd, ts)

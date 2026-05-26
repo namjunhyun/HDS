@@ -71,25 +71,29 @@ void RgbdSlamNode::GrabDepth(const ImageMsg::SharedPtr msgD)
 
     Sophus::SE3f Tcw = m_SLAM->TrackRGBD(cv_ptrRGB->image, cv_ptrD->image, depth_t);
 
-    int state     = m_SLAM->GetTrackingState();
-    auto trackedKps = m_SLAM->GetTrackedKeyPointsUn();
-    auto trackedMPs = m_SLAM->GetTrackedMapPoints();
+    int state        = m_SLAM->GetTrackingState();
+    auto trackedKps  = m_SLAM->GetTrackedKeyPointsUn();
+    auto trackedMPs  = m_SLAM->GetTrackedMapPoints();
+    int prePOMatches = m_SLAM->GetPrePOMatches();
+    float localBAErr = m_SLAM->GetLocalBAError();
 
-    ExtractAndWriteFeatures(cv_ptrRGB->image, trackedKps, trackedMPs, state, Tcw);
+    ExtractAndWriteFeatures(cv_ptrRGB->image, trackedKps, trackedMPs, state, Tcw, prePOMatches, localBAErr);
 }
 
 // ── RTS 16개 + PSD 추출 및 /dev/shm 기록 ─────────────────────────────────────
 // 훈련 데이터(EuRoC)와 동일한 피처 순서 및 정규화:
 // [0] Brightness/160   [1] Contrast(raw)  [2] Entropy/8     [3] Laplacian/90
-// [4] AvgMPDepth*1.2   [5] VarMPDepth     [6] PrePOKeyMapLoss(=0)
+// [4] AvgMPDepth*1.2   [5] VarMPDepth     [6] PrePOKeyMapLoss (prePOMatches)
 // [7] PostPOOutlier(count) [8] MatchedInlier/400
-// [9] DX [10] DY [11] DZ [12] Yaw [13] Pitch [14] Roll  [15] local_visual_BA_Err(=0)
+// [9] DX [10] DY [11] DZ [12] Yaw [13] Pitch [14] Roll  [15] local_visual_BA_Err
 void RgbdSlamNode::ExtractAndWriteFeatures(
     const cv::Mat& colorImg,
     const std::vector<cv::KeyPoint>& trackedKps,
     const std::vector<ORB_SLAM3::MapPoint*>& trackedMPs,
     int trackState,
-    const Sophus::SE3f& Tcw)
+    const Sophus::SE3f& Tcw,
+    int prePOMatches,
+    float localBAErr)
 {
     const float IMG_W = (float)colorImg.cols;
     const float IMG_H = (float)colorImg.rows;
@@ -138,10 +142,10 @@ void RgbdSlamNode::ExtractAndWriteFeatures(
     cv::Mat gray;
     cv::cvtColor(colorImg, gray, cv::COLOR_BGR2GRAY);
 
-    // [0] Brightness: mean of gray [0,255] / 160  (훈련과 동일)
+    // [0] Brightness: mean of gray [0,255] / 160
     rts[0] = (float)cv::mean(gray)[0] / 160.0f;
 
-    // [1] Contrast: std of gray [0,255]  (훈련은 raw std, 정규화 없음)
+    // [1] Contrast: std of gray [0,255] (raw, no normalization)
     cv::Scalar mean_v, std_v;
     cv::meanStdDev(gray, mean_v, std_v);
     rts[1] = (float)std_v[0];
@@ -160,7 +164,7 @@ void RgbdSlamNode::ExtractAndWriteFeatures(
     }
     rts[2] = entropy / 8.0f;
 
-    // [3] Laplacian variance / 90  (훈련: raw Laplacian of gray [0,255], var/90)
+    // [3] Laplacian variance / 90
     cv::Mat lap;
     cv::Laplacian(gray, lap, CV_64F);
     cv::Scalar lap_mean, lap_std;
@@ -187,19 +191,19 @@ void RgbdSlamNode::ExtractAndWriteFeatures(
     float var_depth = (n_inliers > 1) ?
         (depth_sq_sum / n_inliers - avg_depth * avg_depth) : 0.0f;
 
-    // [4] AvgMPDepth * 1.2  (훈련과 동일)
+    // [4] AvgMPDepth * 1.2
     rts[4] = avg_depth * 1.2f;
 
-    // [5] VarMPDepth  (훈련: raw variance)
+    // [5] VarMPDepth (raw variance)
     rts[5] = var_depth;
 
-    // [6] PrePOKeyMapLoss: 내부 ORB-SLAM3 지표, 추출 불가 → 0
-    rts[6] = 0.0f;
+    // [6] PrePOKeyMapLoss: map-matched keypoints before pose optimization
+    rts[6] = (float)prePOMatches;
 
-    // [7] PostPOOutlier: raw outlier count  (훈련: raw count, 정규화 없음)
+    // [7] PostPOOutlier: raw outlier count
     rts[7] = (float)n_outliers;
 
-    // [8] MatchedInlier / 400  (훈련과 동일)
+    // [8] MatchedInlier / 400
     rts[8] = (float)n_inliers / 400.0f;
 
     // [9-14] DX,DY,DZ,Yaw,Pitch,Roll: relative pose (raw, radians)
@@ -211,14 +215,11 @@ void RgbdSlamNode::ExtractAndWriteFeatures(
         rts[11] = t.z();
 
         auto q = rel.unit_quaternion();
-        // Roll (x-axis)
         float sinr_cosp = 2.0f * (q.w() * q.x() + q.y() * q.z());
         float cosr_cosp = 1.0f - 2.0f * (q.x() * q.x() + q.y() * q.y());
         float roll  = std::atan2(sinr_cosp, cosr_cosp);
-        // Pitch (y-axis)
-        float sinp = 2.0f * (q.w() * q.y() - q.z() * q.x());
+        float sinp  = 2.0f * (q.w() * q.y() - q.z() * q.x());
         float pitch = std::asin(std::max(-1.0f, std::min(1.0f, sinp)));
-        // Yaw (z-axis)
         float siny_cosp = 2.0f * (q.w() * q.z() + q.x() * q.y());
         float cosy_cosp = 1.0f - 2.0f * (q.y() * q.y() + q.z() * q.z());
         float yaw   = std::atan2(siny_cosp, cosy_cosp);
@@ -228,8 +229,8 @@ void RgbdSlamNode::ExtractAndWriteFeatures(
         rts[14] = roll;
     }
 
-    // [15] local_visual_BA_Err: 내부 ORB-SLAM3 지표, 추출 불가 → 0
-    rts[15] = 0.0f;
+    // [15] local_visual_BA_Err: mean chi2 from last local bundle adjustment
+    rts[15] = localBAErr;
 
     if (trackState == 2)
         last_Tcw_ = Tcw;

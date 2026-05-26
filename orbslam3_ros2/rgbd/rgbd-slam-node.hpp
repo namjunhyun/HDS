@@ -30,8 +30,8 @@ static constexpr int PSD_FRAMES = 4;
 
 // RTS 피처 16개 (훈련 데이터와 동일):
 // Brightness, Contrast, Entropy, Laplacian, AvgMPDepth, VarMPDepth,
-// PrePOKeyMapLoss(0), PostPOOutlier, MatchedInlier,
-// DX, DY, DZ, Yaw, Pitch, Roll, local_visual_BA_Err(0)
+// PrePOKeyMapLoss, PostPOOutlier, MatchedInlier,
+// DX, DY, DZ, Yaw, Pitch, Roll, local_visual_BA_Err
 static constexpr int RTS_FEATURES = 16;
 static constexpr int RTS_WINDOW   = 30;
 
@@ -52,7 +52,9 @@ private:
                                  const std::vector<cv::KeyPoint>& trackedKps,
                                  const std::vector<ORB_SLAM3::MapPoint*>& trackedMPs,
                                  int trackState,
-                                 const Sophus::SE3f& Tcw);
+                                 const Sophus::SE3f& Tcw,
+                                 int prePOMatches,
+                                 float localBAErr);
 
     ORB_SLAM3::System* m_SLAM;
 
