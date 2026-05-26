@@ -7,8 +7,12 @@ runs/
 datasets/
 *.pth
 *.pkl
-*.npy
 *.bin
+# npy 파일 제외 (정규화 통계 파일은 예외)
+*.npy
+!DeepSEE/runs/rts_norm_lower.npy
+!DeepSEE/runs/rts_norm_upper.npy
+!DeepSEE/runs/rts_norm_std.npy
 
 # Python 캐시
 __pycache__/

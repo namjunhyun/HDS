@@ -1,6 +1,6 @@
 """
 HDS G1 추론 (conda deepsee Python 3.9으로 실행)
-/dev/shm에서 IMU + 이미지 읽어서 DeepSEE 추론
+/dev/shm에서 RTS(16ch) + PSD 읽어서 TS2Vec 인코딩 후 DeepSEE 추론
 """
 import sys, time, collections, threading, queue, json, re, os
 import numpy as np
@@ -15,15 +15,15 @@ load_dotenv(os.path.join(_HERE, ".env"))
 
 sys.path.insert(0, _HERE)
 from models.DeepSEEModels import DeepSEEModel, MultiModalCrossAttentionConfig
-from transformers import PatchTSMixerConfig, TimesformerConfig
+from transformers import TimesformerConfig, PatchTSMixerConfig
 
-# 모델 가중치 경로: runs/ 폴더에 직접 배치하거나 아래 경로 수정
-MODEL_PATH      = os.path.join(_HERE, "runs", "SupervisedFinetune_1_best_model.pth")
-THRESHOLD       = 0.6
-IMU_WINDOW      = 30
-STREAM_HZ       = 10
-PLOT_WINDOW     = 200
-W_HW            = 0.3
+MODEL_PATH    = os.path.join(_HERE, "runs", "SupervisedFinetune_1_best_model.pth")
+TS2VEC_PATH   = os.path.join(_HERE, "runs", "pretrained_model.pkl")
+NORM_DIR      = os.path.join(_HERE, "runs")
+
+THRESHOLD         = 0.6
+STREAM_HZ         = 10
+W_HW              = 0.3
 SYMBOLIC_DURATION = 80
 
 _W_E, _W_B, _W_L = 0.335, 0.305, 0.262
@@ -111,46 +111,83 @@ Guidelines:
     def stop(self):
         self._running = False
 
+
+# ── TS2Vec 래퍼 ───────────────────────────────────────────────────────────
+class TS2VecEncoder:
+    """pretrained_model.pkl 로드 후 추론 (input=16, output=64)"""
+    def __init__(self, ckpt_path):
+        from ts2vec.ts2vec import TS2Vec
+        self.model = TS2Vec(input_dims=16, output_dims=64, device='cpu')
+        state = torch.load(ckpt_path, map_location='cpu', weights_only=False)
+        new_state = {k.replace('module.', ''): v for k, v in state.items()}
+        self.model.net.load_state_dict(new_state, strict=False)
+        self.model.net.eval()
+
+    def encode(self, x_np):
+        """x_np: (30, 16) → (30, 64)"""
+        inp = x_np[np.newaxis]  # (1, 30, 16)
+        rep = self.model.encode(inp, causal=True, sliding_length=1, sliding_padding=5)
+        return rep[0]           # (30, 64)
+
+
+# ── 정규화 ────────────────────────────────────────────────────────────────
+def load_norm_stats():
+    lower = np.load(os.path.join(NORM_DIR, "rts_norm_lower.npy"))
+    upper = np.load(os.path.join(NORM_DIR, "rts_norm_upper.npy"))
+    std   = np.load(os.path.join(NORM_DIR, "rts_norm_std.npy"))
+    return lower, upper, std
+
+def normalize_rts(rts_window, lower, upper, std):
+    """(30, 16) → 훈련과 동일한 IQR clip + std 정규화"""
+    x = np.clip(rts_window, lower, upper)
+    return (x / (std + 1e-8)).astype(np.float32)
+
+
 # ── 모델 로드 ─────────────────────────────────────────────────────────────
 def load_model():
     pd_config = TimesformerConfig(
         image_size=128, patch_size=8, num_channels=3,
         num_frames=4, num_hidden_layers=3, hidden_size=192, intermediate_size=256
     )
-    # patch_len=1 → 30 patches (fc1이 (30+4)*128=4352 기대)
     ts_config = PatchTSMixerConfig(
         context_length=30, patch_len=1, num_input_channels=6, d_model=64
     )
+    # ts2vec_only=True: PatchTSMixer 건너뜀, ts_proj = Linear(64, 128)
     ca_config = MultiModalCrossAttentionConfig(
-        ca_d_model=128, reg_d_fc=128, ts_num_input_channels=6,
-        ts_d_model=64, pd_width=96, pd_height=128, pd_d_model=192,
+        ts2vec_only=True, ts2vec_dim=64,
+        ca_d_model=128, reg_d_fc=128,
+        ts_num_input_channels=64, ts_d_model=64,
+        pd_width=96, pd_height=128, pd_d_model=192,
         ts_context_length=30
     )
     ca_config.pe_max_len = 10000
+
     model = DeepSEEModel(pd_config, ts_config, ca_config)
-    model.ca_regressor.ts_proj.projection = nn.Linear(64, 128)
+
     import __main__
     if not hasattr(__main__, 'loss_fn'):
         __main__.loss_fn = lambda pred, target: pred
+
     ckpt       = torch.load(MODEL_PATH, map_location=device, weights_only=False)
     state_dict = ckpt['model_state_dict'] if isinstance(ckpt, dict) and 'model_state_dict' in ckpt else ckpt
     model.load_state_dict(state_dict, strict=False)
-
-    # ts_proj.forward 패치: Linear(64,128)에 맞게 mean pooling 후 projection
-    orig_ts_proj = model.ca_regressor.ts_proj
-    def _ts_proj_forward(ts_hs):
-        # ts_hs: (batch, channels, patches, d_model) = (1, 6, 30, 64)
-        hs = ts_hs.mean(dim=1)          # (1, 30, 64)
-        return orig_ts_proj.projection(hs)  # (1, 30, 128)
-    model.ca_regressor.ts_proj.forward = _ts_proj_forward
-
     model.eval()
     return model
 
-_orb = cv2.ORB_create(500)
+
+# ── 버퍼 읽기 ────────────────────────────────────────────────────────────
+def _read_rts():
+    """C++ ORB-SLAM3가 쓴 rts_buffer.bin: (30, 16) float32"""
+    try:
+        raw = np.fromfile('/dev/shm/rts_buffer.bin', dtype=np.float32)
+        if raw.size == 30 * 16:
+            return raw.reshape(30, 16)
+    except Exception:
+        pass
+    return None
 
 def _read_psd():
-    """C++에서 저장한 PSD 버퍼 읽기: (4,3,96,128) float32"""
+    """C++ ORB-SLAM3가 쓴 psd_buffer.bin: (4, 3, 96, 128) float32"""
     try:
         raw = np.fromfile('/dev/shm/psd_buffer.bin', dtype=np.float32)
         if raw.size == 4 * 3 * 96 * 128:
@@ -159,34 +196,48 @@ def _read_psd():
         pass
     return None
 
-def infer_deepsee(model, imu_window, frame_bgr):
-    # ── IMU (RTS 대용) ────────────────────────────────────────────────────
-    imu_norm = (imu_window - imu_window.mean(0)) / (imu_window.std(0) + 1e-8)
-    ts = torch.tensor(imu_norm[None], dtype=torch.float32)   # (1, 30, 6)
+_orb = cv2.ORB_create(500)
 
-    # ── PSD ──────────────────────────────────────────────────────────────
+def _fallback_psd(frame_bgr):
+    small  = cv2.resize(frame_bgr, (128, 96))
+    gray   = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+    kps    = _orb.detect(gray, None)
+    canvas = np.zeros((96, 128), dtype=np.float32)
+    for kp in kps:
+        x, y = int(kp.pt[0]), int(kp.pt[1])
+        if 0 <= x < 128 and 0 <= y < 96:
+            canvas[y, x] = min(kp.response / 1000.0, 1.0)
+    ch = canvas[None]
+    frame = np.concatenate([ch, ch, ch], axis=0)
+    return np.stack([frame] * 4, axis=0)
+
+
+# ── DeepSEE 추론 ──────────────────────────────────────────────────────────
+def infer_deepsee(model, ts2vec, norm_stats, frame_bgr):
+    lower, upper, std = norm_stats
+
+    rts_raw = _read_rts()
+    if rts_raw is None:
+        return None
+
+    rts_norm = normalize_rts(rts_raw, lower, upper, std)   # (30, 16)
+    ts_enc   = ts2vec.encode(rts_norm)                     # (30, 64)
+    ts = torch.tensor(ts_enc[np.newaxis], dtype=torch.float32)  # (1, 30, 64)
+
     psd_np = _read_psd()
+    if psd_np is None and frame_bgr is not None:
+        psd_np = _fallback_psd(frame_bgr)
     if psd_np is None:
-        # PSD 없으면 ORB 키포인트로 간이 대체
-        small = cv2.resize(frame_bgr, (128, 96))
-        gray  = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
-        kps   = _orb.detect(gray, None)
-        canvas = np.zeros((96, 128), dtype=np.float32)
-        for kp in kps:
-            x, y = int(kp.pt[0]), int(kp.pt[1])
-            if 0 <= x < 128 and 0 <= y < 96:
-                canvas[y, x] = min(kp.response / 1000.0, 1.0)
-        ch = canvas[None]  # (1, 96, 128)
-        frame = np.concatenate([ch, ch, ch], axis=0)  # (3, 96, 128)
-        psd_np = np.stack([frame] * 4, axis=0)        # (4, 3, 96, 128)
+        return None
 
-    # (4, 3, 96, 128) → (1, 3, 4, 96, 128)
     pd = torch.tensor(psd_np, dtype=torch.float32).permute(1, 0, 2, 3).unsqueeze(0)
 
     with torch.no_grad():
         out = model(pd, ts)
     return float(out.item())
 
+
+# ── Image Quality Guardrail ───────────────────────────────────────────────
 def image_quality_guardrail(frame_bgr):
     gray       = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY).astype(float)
     brightness = gray.mean() / 255.0
@@ -196,34 +247,29 @@ def image_quality_guardrail(frame_bgr):
     lap        = cv2.Laplacian(gray.astype(np.uint8), cv2.CV_64F).var()
     lap_norm   = min(lap / 1000.0, 1.0)
     kps        = _orb.detect(gray.astype(np.uint8), None)
-    feat_score = 1.0 - min(len(kps) / 300.0, 1.0)  # 특징점 적을수록 위험
-    # 어두움·저엔트로피·블러·특징점 부족 → G 올라감
-    return float(W_ENTROPY * (1 - entropy) + W_BRIGHT * (1 - brightness) + W_LAP * (1 - lap_norm) + 0.1 * feat_score)
+    feat_score = 1.0 - min(len(kps) / 300.0, 1.0)
+    return float(W_ENTROPY * (1 - entropy) + W_BRIGHT * (1 - brightness)
+                 + W_LAP * (1 - lap_norm) + 0.1 * feat_score)
 
-def get_state():
+
+def get_frame():
     try:
-        imu_win   = np.load('/dev/shm/imu_buffer.npy')
-        frame_bgr = cv2.imread('/dev/shm/latest_frame.jpg')
-        if imu_win.shape[0] < IMU_WINDOW:
-            return None, None
-        return imu_win, frame_bgr
-    except:
-        return None, None
+        return cv2.imread('/dev/shm/latest_frame.jpg')
+    except Exception:
+        return None
+
 
 # ── 메인 루프 ─────────────────────────────────────────────────────────────
-def run_hds(model, symbolic):
-    raw_buf  = collections.deque(maxlen=300)
-    ema      = [0.0]
+def run_hds(model, ts2vec, norm_stats, symbolic):
+    raw_buf = collections.deque(maxlen=300)
+    ema     = [0.0]
 
     def norm_running(val):
         raw_buf.append(val)
         arr = np.array(raw_buf)
         mn, mx = arr.min(), arr.max()
         rng = mx - mn
-        if rng < 1e-4:
-            normalized = 0.0
-        else:
-            normalized = float(np.clip((val - mn) / rng, 0, 1))
+        normalized = 0.0 if rng < 1e-4 else float(np.clip((val - mn) / rng, 0, 1))
         ema[0] = 0.85 * ema[0] + 0.15 * normalized
         return ema[0]
 
@@ -236,16 +282,16 @@ def run_hds(model, symbolic):
 
     try:
         while True:
-            imu_win, frame_bgr = get_state()
+            frame_bgr = get_frame()
 
-            if imu_win is None:
+            if not os.path.exists('/dev/shm/rts_buffer.bin'):
                 if not wait_printed:
-                    print("  IMU 버퍼 대기 중...")
+                    print("  RTS 버퍼 대기 중 (ORB-SLAM3 실행 필요)...")
                     wait_printed = True
                 if frame_bgr is not None:
                     disp = frame_bgr.copy()
-                    cv2.putText(disp, "IMU waiting...", (10, 35),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,255), 2)
+                    cv2.putText(disp, "RTS waiting...", (10, 35),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
                     cv2.imshow("G1 HDS", disp)
                     cv2.waitKey(1)
                 time.sleep(0.1)
@@ -255,25 +301,26 @@ def run_hds(model, symbolic):
             now = time.time()
             if now - last_infer >= 1.0 / STREAM_HZ:
                 last_infer = now
-                raw_pred  = infer_deepsee(model, imu_win, frame_bgr)
-                ds_score  = norm_running(raw_pred)
-                G         = image_quality_guardrail(frame_bgr) if frame_bgr is not None else 0.0
-                delta_sym = symbolic.get_delta(ds_score)
-                delta_hw  = W_HW * G
-                hds_score = float(np.clip(ds_score + delta_sym + delta_hw, 0, 1))
-                alert     = hds_score >= THRESHOLD
-                infer_count += 1
+                raw_pred  = infer_deepsee(model, ts2vec, norm_stats, frame_bgr)
+                if raw_pred is not None:
+                    ds_score  = norm_running(raw_pred)
+                    G         = image_quality_guardrail(frame_bgr) if frame_bgr is not None else 0.0
+                    delta_sym = symbolic.get_delta(ds_score)
+                    delta_hw  = max(0.0, G - 0.20) * W_HW
+                    hds_score = float(np.clip(ds_score + delta_sym + delta_hw, 0, 1))
+                    alert     = hds_score >= THRESHOLD
+                    infer_count += 1
 
-                bar = '#' * int(hds_score * 20)
-                tag = "*** ALERT ***" if alert else "Normal       "
-                print(f"\r  [{tag}] DS={ds_score:.3f} G={G:.3f} HDS={hds_score:.3f}  [{bar:<20}]", end='')
+                    bar = '#' * int(hds_score * 20)
+                    tag = "*** ALERT ***" if alert else "Normal       "
+                    print(f"\r  [{tag}] DS={ds_score:.3f} G={G:.3f} hw={delta_hw:.3f} HDS={hds_score:.3f}  [{bar:<20}]", end='')
 
             if frame_bgr is not None:
                 disp  = frame_bgr.copy()
                 color = (0, 0, 255) if alert else (0, 200, 0)
-                cv2.putText(disp, f"DeepSEE: {ds_score:.3f}",  (10, 35),  cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,255,255), 2)
+                cv2.putText(disp, f"DeepSEE: {ds_score:.3f}",  (10, 35),  cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
                 cv2.putText(disp, f"HDS:     {hds_score:.3f}", (10, 70),  cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
-                cv2.putText(disp, f"G:       {G:.3f}  hw:{delta_hw:.3f}", (10, 105), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (180,180,180), 2)
+                cv2.putText(disp, f"G:{G:.3f} hw:{delta_hw:.3f}", (10, 105), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (180, 180, 180), 2)
                 cv2.putText(disp, "DRIFT RISK!" if alert else "Normal",
                             (10, 145), cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
                 if symbolic.is_active():
@@ -292,13 +339,26 @@ def run_hds(model, symbolic):
         cv2.destroyAllWindows()
         print(f"[HDS] 총 {infer_count}회 추론 완료.")
 
+
 if __name__ == '__main__':
     print("=== HDS G1 Local 추론 ===\n")
-    print(f"모델: {MODEL_PATH}\n")
-    print("[1/2] DeepSEE 모델 로드...")
+    print(f"모델:   {MODEL_PATH}")
+    print(f"TS2Vec: {TS2VEC_PATH}\n")
+
+    print("[1/4] 정규화 통계 로드...")
+    norm_stats = load_norm_stats()
+    print("  OK\n")
+
+    print("[2/4] TS2Vec 인코더 로드...")
+    ts2vec = TS2VecEncoder(TS2VEC_PATH)
+    print("  OK\n")
+
+    print("[3/4] DeepSEE 모델 로드...")
     model = load_model()
     print("  OK\n")
-    print("[2/2] Symbolic Layer 초기화...")
+
+    print("[4/4] Symbolic Layer 초기화...")
     symbolic = SymbolicLayer()
     print("  OK\n")
-    run_hds(model, symbolic)
+
+    run_hds(model, ts2vec, norm_stats, symbolic)
