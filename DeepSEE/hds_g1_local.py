@@ -147,7 +147,8 @@ def normalize_rts(rts_window, lower, upper, std):
 def load_model():
     pd_config = TimesformerConfig(
         image_size=128, patch_size=8, num_channels=3,
-        num_frames=4, num_hidden_layers=3, hidden_size=192, intermediate_size=256
+        num_frames=4, num_hidden_layers=3, num_attention_heads=12,
+        hidden_size=192, intermediate_size=256, hidden_dropout_prob=0,
     )
     ts_config = PatchTSMixerConfig(
         context_length=30, patch_len=1, num_input_channels=6, d_model=64
@@ -155,13 +156,14 @@ def load_model():
     # ts2vec_only=True: PatchTSMixer 건너뜀, ts_proj = Linear(64, 128)
     ca_config = MultiModalCrossAttentionConfig(
         ts2vec_only=True, ts2vec_dim=64,
-        ca_d_model=128, reg_d_fc=128,
-        ts_num_input_channels=64, ts_d_model=64,
+        ca_d_model=128, ca_num_head=16, ca_num_layers=2,
+        reg_d_fc=128,
+        ts_num_input_channels=64, ts_d_model=192, ts_time_step=33,
         pd_width=96, pd_height=128, pd_d_model=192,
-        ts_context_length=30
+        pd_time_step=330,
+        ts_context_length=30,
+        pe_max_len=10000,
     )
-    ca_config.pe_max_len = 10000
-
     model = DeepSEEModel(pd_config, ts_config, ca_config)
 
     import __main__
