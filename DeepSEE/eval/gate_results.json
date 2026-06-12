@@ -1,0 +1,151 @@
+{
+  "rule_acc": 0.45454545454545453,
+  "llm_acc": 1.0,
+  "llm_rescue_rate": 1.0,
+  "go": true,
+  "rows": [
+    {
+      "id": "A1",
+      "cat": "A_openvocab",
+      "text": "이 복도는 양쪽 벽 타일 무늬가 완전히 똑같아서 SLAM이 자기 위치를 자주 헷갈릴 거야.",
+      "gt_band": [
+        0.15,
+        0.4
+      ],
+      "rule": 0.1,
+      "rule_ok": false,
+      "llm": 0.35,
+      "llm_ok": true
+    },
+    {
+      "id": "A2",
+      "cat": "A_openvocab",
+      "text": "앞 구간은 사람들이 계속 지나다녀서 움직이는 물체가 특징점 매칭을 흔들 거야.",
+      "gt_band": [
+        0.15,
+        0.4
+      ],
+      "rule": 0.2,
+      "rule_ok": true,
+      "llm": 0.28,
+      "llm_ok": true
+    },
+    {
+      "id": "A3",
+      "cat": "A_openvocab",
+      "text": "천장이 단조로운 흰색이라 위를 향할 때 특징이 거의 안 잡혀.",
+      "gt_band": [
+        0.12,
+        0.35
+      ],
+      "rule": 0.1,
+      "rule_ok": false,
+      "llm": 0.35,
+      "llm_ok": true
+    },
+    {
+      "id": "B1",
+      "cat": "B_lower",
+      "text": "저 앞 어두워 보이는 건 잠깐 드리운 그늘이고 바로 밝아져서 추적엔 문제없어.",
+      "gt_band": [
+        -0.4,
+        0.08
+      ],
+      "rule": 0.2,
+      "rule_ok": false,
+      "llm": -0.15,
+      "llm_ok": true
+    },
+    {
+      "id": "B2",
+      "cat": "B_lower",
+      "text": "조도계엔 어둡게 잡히지만 적외선 조명이 켜져 있어서 카메라엔 충분히 밝아.",
+      "gt_band": [
+        -0.4,
+        0.08
+      ],
+      "rule": 0.1,
+      "rule_ok": false,
+      "llm": -0.15,
+      "llm_ok": true
+    },
+    {
+      "id": "C1",
+      "cat": "C_compose",
+      "text": "지난주 여기 모퉁이에서 역광 때문에 추적을 놓쳤는데, 오늘도 같은 시간대라 또 그럴 거야.",
+      "gt_band": [
+        0.18,
+        0.45
+      ],
+      "rule": 0.1,
+      "rule_ok": false,
+      "llm": 0.35,
+      "llm_ok": true
+    },
+    {
+      "id": "C2",
+      "cat": "C_compose",
+      "text": "다음 방은 청소 중이라 바닥이 젖어 있어서 반사가 심하게 생길 거야.",
+      "gt_band": [
+        0.12,
+        0.38
+      ],
+      "rule": 0.2,
+      "rule_ok": true,
+      "llm": 0.35,
+      "llm_ok": true
+    },
+    {
+      "id": "D1",
+      "cat": "D_negation",
+      "text": "여기는 전혀 어둡지 않아, 조명 다 켜놨으니 추적 안정적일 거야.",
+      "gt_band": [
+        -0.3,
+        0.1
+      ],
+      "rule": 0.1,
+      "rule_ok": true,
+      "llm": -0.15,
+      "llm_ok": true
+    },
+    {
+      "id": "D2",
+      "cat": "D_negation",
+      "text": "급격한 회전은 전혀 없고 아주 천천히 직진만 할 거라 흔들림 없어.",
+      "gt_band": [
+        -0.3,
+        0.1
+      ],
+      "rule": 0.2,
+      "rule_ok": false,
+      "llm": -0.2,
+      "llm_ok": true
+    },
+    {
+      "id": "E1",
+      "cat": "E_control",
+      "text": "전방에 매우 어두운 암흑 구간이 있어 특징 추적이 심하게 저하될 거야.",
+      "gt_band": [
+        0.25,
+        0.5
+      ],
+      "rule": 0.32,
+      "rule_ok": true,
+      "llm": 0.4,
+      "llm_ok": true
+    },
+    {
+      "id": "E2",
+      "cat": "E_control",
+      "text": "조명 양호하고 텍스처 풍부한 안정 구간이라 특별한 위험 없어.",
+      "gt_band": [
+        -0.15,
+        0.12
+      ],
+      "rule": 0.1,
+      "rule_ok": true,
+      "llm": -0.15,
+      "llm_ok": true
+    }
+  ]
+}

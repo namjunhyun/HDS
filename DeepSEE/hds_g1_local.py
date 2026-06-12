@@ -20,6 +20,16 @@ from transformers import TimesformerConfig, PatchTSMixerConfig
 MODEL_PATH    = os.path.join(_HERE, "runs", "SupervisedFinetune_1_best_model.pth")
 TS2VEC_PATH   = os.path.join(_HERE, "runs", "pretrained_model.pkl")
 NORM_DIR      = os.path.join(_HERE, "runs")
+CALIB_PATH    = os.path.join(_HERE, "runs", "ds_calib.npz")   # make_ds_calib.py로 생성
+
+
+def load_ds_calib():
+    """DeepSEE raw 출력 → [0,1] 고정 affine 변환 (lo, hi). 없으면 None."""
+    try:
+        z = np.load(CALIB_PATH)
+        return float(z['lo']), float(z['hi'])
+    except Exception:
+        return None
 
 THRESHOLD         = 0.6
 STREAM_HZ         = 10
@@ -76,9 +86,11 @@ Guidelines:
 - Severe (dark + no features + rapid motion): 0.30~0.50"""
 
                 msg    = self._client.messages.create(
-                    model="claude-sonnet-4-6", max_tokens=128,
+                    model="claude-sonnet-4-6", max_tokens=128, temperature=0.0,
                     messages=[{"role": "user", "content": prompt}]
                 )
+                if not msg.content:
+                    raise ValueError("LLM 응답이 비어 있음")
                 raw    = re.sub(r'```[a-z]*\n?', '', msg.content[0].text.strip()).strip().rstrip('`')
                 result = json.loads(raw)
                 delta  = float(result['risk_delta'])
@@ -88,7 +100,26 @@ Guidelines:
                 print(f"\n  [LLM] risk_delta={delta:.3f} | {reason}")
                 print(f"  → {SYMBOLIC_DURATION/STREAM_HZ:.0f}초 동안 적용\n", flush=True)
             except Exception as e:
-                print(f"\n  [LLM 오류] {e}\n", flush=True)
+                # 네트워크/API 장애 시 키워드 기반 규칙으로 폴백 (실시간 안전 보장)
+                delta = self._keyword_fallback(text)
+                if delta > 0:
+                    with self._lock:
+                        self._active.append([delta, SYMBOLIC_DURATION, f"[fallback] {text[:40]}"])
+                    print(f"\n  [LLM 오류→폴백] risk_delta={delta:.3f} ({e})\n", flush=True)
+                else:
+                    print(f"\n  [LLM 오류] {e}\n", flush=True)
+
+    @staticmethod
+    def _keyword_fallback(text):
+        """LLM 불가 시 운영자 텍스트에서 위험 키워드를 규칙 매칭."""
+        t = text.lower()
+        severe   = ['암흑', '칠흑', 'pitch dark', '특징점 없', 'no feature', '급격', 'rapid']
+        moderate = ['어두', '저조도', 'dark', 'low light', '블러', 'blur', '흔들', '빠른', 'fast']
+        if any(k in t for k in severe):
+            return 0.30
+        if any(k in t for k in moderate):
+            return 0.15
+        return 0.0
 
     def get_delta(self, ds_score):
         with self._lock:
@@ -120,7 +151,10 @@ class TS2VecEncoder:
         self.model = TS2Vec(input_dims=16, output_dims=64, device='cpu')
         state = torch.load(ckpt_path, map_location='cpu', weights_only=False)
         new_state = {k.replace('module.', ''): v for k, v in state.items()}
-        self.model.net.load_state_dict(new_state, strict=False)
+        result = self.model.net.load_state_dict(new_state, strict=False)
+        if result.missing_keys or result.unexpected_keys:
+            print(f"  [TS2Vec 경고] missing={len(result.missing_keys)} "
+                  f"unexpected={len(result.unexpected_keys)} — config 불일치 의심")
         self.model.net.eval()
 
     def encode(self, x_np):
@@ -172,7 +206,17 @@ def load_model():
 
     ckpt       = torch.load(MODEL_PATH, map_location=device, weights_only=False)
     state_dict = ckpt['model_state_dict'] if isinstance(ckpt, dict) and 'model_state_dict' in ckpt else ckpt
-    model.load_state_dict(state_dict, strict=False)
+    missing, unexpected = model.load_state_dict(state_dict, strict=False)
+    # 핵심 모듈(회귀기/인코더) 가중치가 누락되면 랜덤 초기화로 조용히 동작 → 중단
+    _critical = ('ca_regressor', 'pd_encoder')
+    crit_missing = [k for k in missing if k.startswith(_critical)]
+    if crit_missing:
+        raise RuntimeError(
+            f"가중치 로드 실패: 핵심 모듈 키 {len(crit_missing)}개 누락 "
+            f"(예: {crit_missing[:3]}). 모델 config가 체크포인트와 불일치합니다.")
+    if missing or unexpected:
+        print(f"  [경고] missing={len(missing)} unexpected={len(unexpected)} "
+              f"(비핵심 키만 누락이면 정상)")
     model.eval()
     return model
 
@@ -272,6 +316,13 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
     raw_buf = collections.deque(maxlen=300)
     ema     = [0.0]
 
+    import csv
+    log_path = os.path.join(_HERE, f"hds_log_{time.strftime('%Y%m%d_%H%M%S')}.csv")
+    log_f = open(log_path, 'w', newline='')
+    log_w = csv.writer(log_f)
+    log_w.writerow(['t', 'ds_raw', 'ds', 'G', 'hw', 'sym', 'hds', 'alert'])
+    print(f"[HDS] 로그 기록: {log_path}")
+
     def norm_running(val):
         if not np.isfinite(val):
             return ema[0]
@@ -282,6 +333,12 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
         normalized = 0.0 if rng < 1e-4 else float(np.clip((val - mn) / rng, 0, 1))
         ema[0] = 0.85 * ema[0] + 0.15 * normalized
         return ema[0]
+
+    calib = load_ds_calib()
+    if calib is not None:
+        print(f"[HDS] 고정 캘리브레이션 사용: lo={calib[0]:.3f} hi={calib[1]:.3f} (결정론적, 무지연)")
+    else:
+        print("[HDS] ds_calib.npz 없음 → rolling min-max+EMA 폴백 (재현성/지연 주의)")
 
     print("[HDS] 추론 시작. Ctrl+C 로 종료.\n")
     last_infer   = time.time()
@@ -313,7 +370,10 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
                 last_infer = now
                 raw_pred  = infer_deepsee(model, ts2vec, norm_stats, frame_bgr)
                 if raw_pred is not None:
-                    ds_score  = norm_running(raw_pred)
+                    if calib is not None:
+                        ds_score = float(np.clip((raw_pred - calib[0]) / (calib[1] - calib[0]), 0, 1))
+                    else:
+                        ds_score = norm_running(raw_pred)
                     G         = image_quality_guardrail(frame_bgr) if frame_bgr is not None else 0.0
                     delta_sym = symbolic.get_delta(ds_score)
                     delta_hw  = max(0.0, G - 0.20) * W_HW
@@ -322,6 +382,11 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
                         hds_score = 0.0
                     alert     = hds_score >= THRESHOLD
                     infer_count += 1
+
+                    log_w.writerow([f"{now:.3f}", f"{raw_pred:.5f}", f"{ds_score:.4f}",
+                                    f"{G:.4f}", f"{delta_hw:.4f}", f"{delta_sym:.4f}",
+                                    f"{hds_score:.4f}", int(alert)])
+                    log_f.flush()
 
                     bar = '#' * int(hds_score * 20)
                     tag = "*** ALERT ***" if alert else "Normal       "
@@ -349,7 +414,8 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
     finally:
         symbolic.stop()
         cv2.destroyAllWindows()
-        print(f"[HDS] 총 {infer_count}회 추론 완료.")
+        log_f.close()
+        print(f"[HDS] 총 {infer_count}회 추론 완료. 로그 저장: {log_path}")
 
 
 if __name__ == '__main__':
