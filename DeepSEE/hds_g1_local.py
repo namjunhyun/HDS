@@ -388,6 +388,15 @@ def run_hds(model, ts2vec, norm_stats, symbolic):
                                     f"{hds_score:.4f}", int(alert)])
                     log_f.flush()
 
+                    # E2 클로즈드루프용: HDS 점수를 /dev/shm로 내보냄 (conda Py3.9 → ROS2 노드)
+                    # 형식: "<hds_score> <alert(0/1)> <timestamp>", 원자적 교체
+                    try:
+                        with open('/dev/shm/hds_score.tmp', 'w') as _sf:
+                            _sf.write(f"{hds_score:.4f} {int(alert)} {now:.3f}")
+                        os.replace('/dev/shm/hds_score.tmp', '/dev/shm/hds_score')
+                    except Exception:
+                        pass
+
                     bar = '#' * int(hds_score * 20)
                     tag = "*** ALERT ***" if alert else "Normal       "
                     print(f"\r  [{tag}] DS={ds_score:.3f} G={G:.3f} hw={delta_hw:.3f} HDS={hds_score:.3f}  [{bar:<20}]", end='')
