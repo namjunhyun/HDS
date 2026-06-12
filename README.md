@@ -17,6 +17,33 @@ HDS integrates three components to proactively estimate V-SLAM drift risk in rea
 
 **Final score:** `r̃ = clip(r̂ + Δ_sym + W_HW · G, 0, 1)`
 
+> **학습/평가 데이터**: DeepSEE는 **SenseTime(실측) + 합성 환경 9종**으로 학습됨.
+> EuRoC / TUM-VI / OpenLORIS 는 **zero-shot** 평가 대상(학습 미사용).
+
+---
+
+## Repository Structure
+
+```
+HDS_repo/
+├─ DeepSEE/
+│  ├─ hds_g1_local.py          # 메인 실시간 추론 (DS+G+Symbolic 융합)
+│  ├─ hds_ros_bridge.py        # 센서 → /dev/shm
+│  ├─ make_ds_calib.py         # DS 출력 고정 캘리브 생성 → runs/ds_calib.npz
+│  ├─ models/ · ts2vec/ · runs/
+│  └─ eval/                    # 오프라인 평가 파이프라인 (논문용)
+├─ orbslam3_ros2/rgbd/         # ORB-SLAM3 RGBD 수정본 (RTS 16채널 + PSD 추출)
+├─ experiments/g1_closedloop/  # E2 클로즈드루프 (궤적평가·완화정책)
+└─ docs/                       # 아키텍처 + 실험 설계 + human study 키트
+```
+
+## Evaluation & Paper (RA-L / ICRA)
+
+- **문서**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/EXPERIMENT_PLAN.md`](docs/EXPERIMENT_PLAN.md) · [`docs/EXPERIMENT_DESIGN.md`](docs/EXPERIMENT_DESIGN.md)
+- **오프라인 평가** (`DeepSEE/eval/`): EuRoC zero-shot lead-time / EWR / precision ablation + in-domain 검증 + 부트스트랩 CI — `python3 DeepSEE/eval/eval_offline.py`
+- **게이트 (LLM vs 규칙)**: `gate_llm_vs_rules.py` → 논문화 키트 [`docs/human_study/`](docs/human_study/)
+- **E2 클로즈드루프**: `experiments/g1_closedloop/` (`traj_eval.py --selftest`, `mitigation_policy.py --selftest`)
+
 ---
 
 ## System Architecture
@@ -55,7 +82,9 @@ cp DeepSEE/.env.example DeepSEE/.env
 
 ### 3. 모델 가중치
 
-학습된 `SupervisedFinetune_1_best_model.pth`를 `DeepSEE/runs/` 폴더에 배치하세요.
+학습된 `SupervisedFinetune_1_best_model.pth`(SenseTime+합성 학습), `pretrained_model.pkl`(TS2Vec),
+`rts_norm_*.npy`(입력 정규화)를 `DeepSEE/runs/` 에 배치하세요. DS 출력 캘리브는
+`python3 DeepSEE/make_ds_calib.py` 로 `runs/ds_calib.npz` 생성.
 
 ### 4. ORB-SLAM3 수정 적용
 
@@ -111,7 +140,7 @@ python3 DeepSEE/hds_g1_local.py
 
 ## HDS Score 구성
 
-- **DS** (DeepSEE): IMU + PSD → neural drift prediction, running normalization
+- **DS** (DeepSEE): IMU + PSD → neural drift prediction, 고정 캘리브(`runs/ds_calib.npz`)로 [0,1] 사상
 - **G**: 이미지 품질 (어두움·블러·특징점 부족) → hardware guardrail
 - **hw**: `max(0, G - 0.20) × 0.3` → G가 임계값 초과 시만 기여
 - **Symbolic** `Δ_sym`: 운영자 텍스트 입력 → Claude LLM → 위험 가산
