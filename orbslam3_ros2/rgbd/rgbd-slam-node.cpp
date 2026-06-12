@@ -81,7 +81,8 @@ void RgbdSlamNode::GrabDepth(const ImageMsg::SharedPtr msgD)
 }
 
 // ── RTS 16개 + PSD 추출 및 /dev/shm 기록 ─────────────────────────────────────
-// 훈련 데이터(EuRoC)와 동일한 피처 순서 및 정규화:
+// 훈련 데이터(SenseTime + 합성 환경)와 동일한 피처 순서 및 정규화:
+// (EuRoC/TUM-VI/OpenLORIS는 학습에 미사용 — zero-shot 추론 대상)
 // [0] Brightness/160   [1] Contrast(raw)  [2] Entropy/8     [3] Laplacian/90
 // [4] AvgMPDepth*1.2   [5] VarMPDepth     [6] PrePOKeyMapLoss (prePOMatches)
 // [7] PostPOOutlier(count) [8] MatchedInlier/400

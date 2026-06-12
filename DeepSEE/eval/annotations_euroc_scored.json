@@ -1,0 +1,534 @@
+{
+  "MH_01_easy": [
+    {
+      "seg_start": 16,
+      "seg_end": 25,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 27,
+      "seg_end": 35,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 39,
+      "seg_end": 43,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 45,
+      "seg_end": 52,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 45,
+      "seg_end": 49,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 48,
+      "seg_end": 65,
+      "cue": "dark",
+      "severity": "moderate",
+      "text": "경로 계획상 전방에 조명이 상당히 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 56,
+      "seg_end": 61,
+      "cue": "turn",
+      "severity": "moderate",
+      "text": "전방에서 상당히 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 62,
+      "seg_end": 69,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 72,
+      "seg_end": 81,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 75,
+      "seg_end": 79,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 82,
+      "seg_end": 86,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 104,
+      "seg_end": 108,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    }
+  ],
+  "MH_02_easy": [
+    {
+      "seg_start": 7,
+      "seg_end": 11,
+      "cue": "low_texture",
+      "severity": "moderate",
+      "text": "전방은 텍스처가 상당히 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.22,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 9,
+      "seg_end": 14,
+      "cue": "turn",
+      "severity": "severe",
+      "text": "전방에서 매우 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.25,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 22,
+      "seg_end": 31,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 29,
+      "seg_end": 33,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 38,
+      "seg_end": 42,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 41,
+      "seg_end": 45,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 46,
+      "seg_end": 53,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 52,
+      "seg_end": 61,
+      "cue": "dark",
+      "severity": "moderate",
+      "text": "경로 계획상 전방에 조명이 상당히 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 55,
+      "seg_end": 59,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 60,
+      "seg_end": 66,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 63,
+      "seg_end": 70,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 68,
+      "seg_end": 74,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 73,
+      "seg_end": 77,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    }
+  ],
+  "MH_03_medium": [
+    {
+      "seg_start": 0,
+      "seg_end": 1,
+      "cue": "low_texture",
+      "severity": "severe",
+      "text": "전방은 텍스처가 매우 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.25,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 9,
+      "seg_end": 13,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 17,
+      "seg_end": 21,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 19,
+      "seg_end": 23,
+      "cue": "turn",
+      "severity": "moderate",
+      "text": "전방에서 상당히 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 21,
+      "seg_end": 25,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 24,
+      "seg_end": 29,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 24,
+      "seg_end": 29,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 32,
+      "seg_end": 38,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 35,
+      "seg_end": 40,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 40,
+      "seg_end": 46,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 45,
+      "seg_end": 50,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 45,
+      "seg_end": 49,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 46,
+      "seg_end": 52,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 53,
+      "seg_end": 58,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 62,
+      "seg_end": 66,
+      "cue": "dark",
+      "severity": "mild",
+      "text": "경로 계획상 전방에 조명이 다소 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.2,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 68,
+      "seg_end": 75,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    }
+  ],
+  "MH_04_difficult": [
+    {
+      "seg_start": 0,
+      "seg_end": 1,
+      "cue": "low_texture",
+      "severity": "severe",
+      "text": "전방은 텍스처가 매우 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.25,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 10,
+      "seg_end": 16,
+      "cue": "turn",
+      "severity": "moderate",
+      "text": "전방에서 상당히 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 23,
+      "seg_end": 29,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 23,
+      "seg_end": 27,
+      "cue": "turn",
+      "severity": "moderate",
+      "text": "전방에서 상당히 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 26,
+      "seg_end": 41,
+      "cue": "dark",
+      "severity": "severe",
+      "text": "경로 계획상 전방에 조명이 매우 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "llm"
+    },
+    {
+      "seg_start": 30,
+      "seg_end": 37,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 31,
+      "seg_end": 35,
+      "cue": "turn",
+      "severity": "moderate",
+      "text": "전방에서 상당히 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 46,
+      "seg_end": 50,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 53,
+      "seg_end": 57,
+      "cue": "low_texture",
+      "severity": "moderate",
+      "text": "전방은 텍스처가 상당히 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    }
+  ],
+  "MH_05_difficult": [
+    {
+      "seg_start": 0,
+      "seg_end": 4,
+      "cue": "low_texture",
+      "severity": "severe",
+      "text": "전방은 텍스처가 매우 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.25,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 9,
+      "seg_end": 15,
+      "cue": "turn",
+      "severity": "severe",
+      "text": "전방에서 매우 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.25,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 27,
+      "seg_end": 33,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 28,
+      "seg_end": 45,
+      "cue": "dark",
+      "severity": "severe",
+      "text": "경로 계획상 전방에 조명이 매우 부족한 구간이 있습니다. 낮은 조도로 시각 특징 추적이 저하될 것으로 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 32,
+      "seg_end": 36,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 43,
+      "seg_end": 49,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 52,
+      "seg_end": 56,
+      "cue": "low_texture",
+      "severity": "mild",
+      "text": "전방은 텍스처가 다소 부족한 구간입니다. 특징점 매칭이 불안정해질 우려가 있습니다.",
+      "risk_delta": 0.18,
+      "score_src": "cache"
+    },
+    {
+      "seg_start": 60,
+      "seg_end": 64,
+      "cue": "turn",
+      "severity": "mild",
+      "text": "전방에서 다소 급격한 방향 전환이 예정되어 있습니다. 카메라 모션 블러와 추적 불안정이 예상됩니다.",
+      "risk_delta": 0.22,
+      "score_src": "cache"
+    }
+  ]
+}

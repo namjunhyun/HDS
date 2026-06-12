@@ -1,0 +1,5 @@
+scenario_id,expert_id,label
+S001,E1,mild_inc
+S001,E2,strong_inc
+S002,E1,mild_dec
+S002,E2,mild_dec

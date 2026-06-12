@@ -1,0 +1,297 @@
+{
+  "config": {
+    "THR": 0.85,
+    "H_sec": 8.0,
+    "warmup": 8,
+    "tau_main": 4.6,
+    "norm": "causal"
+  },
+  "indomain": {
+    "AUC_ROC": 0.803,
+    "AUC_CI95": [
+      0.777,
+      0.828
+    ],
+    "AUC_PR": 0.305,
+    "per_fold_AUC": {
+      "0": 0.769,
+      "1": 0.629,
+      "2": 0.902,
+      "3": 0.774,
+      "4": 0.899,
+      "5": 0.859
+    },
+    "n_events": 270,
+    "n": 4519
+  },
+  "by_tau": {
+    "4.2": {
+      "DS": {
+        "EWR": {
+          "1": 37.3,
+          "3": 34.3,
+          "5": 28.4
+        },
+        "recall": 37.3,
+        "precision": 66.7,
+        "false_alarm_per_min": 0.88,
+        "mean_lead_s": 5.78,
+        "alert_duty_%": 15.9,
+        "AUC_ROC": 0.464,
+        "AUC_PR": 0.369
+      },
+      "DS+G": {
+        "EWR": {
+          "1": 53.7,
+          "3": 50.7,
+          "5": 38.8
+        },
+        "recall": 53.7,
+        "precision": 65.9,
+        "false_alarm_per_min": 1.23,
+        "mean_lead_s": 6.09,
+        "alert_duty_%": 26.6,
+        "AUC_ROC": 0.473,
+        "AUC_PR": 0.363
+      },
+      "DS+Sym": {
+        "EWR": {
+          "1": 38.8,
+          "3": 35.8,
+          "5": 29.9
+        },
+        "recall": 38.8,
+        "precision": 68.8,
+        "false_alarm_per_min": 0.88,
+        "mean_lead_s": 5.82,
+        "alert_duty_%": 18.1,
+        "AUC_ROC": 0.524,
+        "AUC_PR": 0.409
+      },
+      "Full": {
+        "EWR": {
+          "1": 61.2,
+          "3": 59.7,
+          "5": 50.7
+        },
+        "recall": 61.2,
+        "precision": 70.2,
+        "false_alarm_per_min": 1.23,
+        "mean_lead_s": 6.43,
+        "alert_duty_%": 35.0,
+        "AUC_ROC": 0.538,
+        "AUC_PR": 0.408
+      },
+      "_n_events": 67
+    },
+    "4.6": {
+      "DS": {
+        "EWR": {
+          "1": 46.8,
+          "3": 38.3,
+          "5": 31.9
+        },
+        "recall": 46.8,
+        "precision": 60.0,
+        "false_alarm_per_min": 1.06,
+        "mean_lead_s": 5.97,
+        "alert_duty_%": 15.9,
+        "AUC_ROC": 0.465,
+        "AUC_PR": 0.188,
+        "recall_CI95": [
+          31.9,
+          61.7
+        ],
+        "lead_CI95": [
+          4.8,
+          7.2
+        ]
+      },
+      "DS+G": {
+        "EWR": {
+          "1": 61.7,
+          "3": 57.4,
+          "5": 42.6
+        },
+        "recall": 61.7,
+        "precision": 61.0,
+        "false_alarm_per_min": 1.41,
+        "mean_lead_s": 6.38,
+        "alert_duty_%": 26.6,
+        "AUC_ROC": 0.478,
+        "AUC_PR": 0.189,
+        "recall_CI95": [
+          48.9,
+          74.5
+        ],
+        "lead_CI95": [
+          5.4,
+          7.3
+        ]
+      },
+      "DS+Sym": {
+        "EWR": {
+          "1": 51.1,
+          "3": 42.6,
+          "5": 36.2
+        },
+        "recall": 51.1,
+        "precision": 62.5,
+        "false_alarm_per_min": 1.06,
+        "mean_lead_s": 6.17,
+        "alert_duty_%": 18.1,
+        "AUC_ROC": 0.54,
+        "AUC_PR": 0.219,
+        "recall_CI95": [
+          38.3,
+          63.8
+        ],
+        "lead_CI95": [
+          5.0,
+          7.2
+        ]
+      },
+      "Full": {
+        "EWR": {
+          "1": 68.1,
+          "3": 66.0,
+          "5": 55.3
+        },
+        "recall": 68.1,
+        "precision": 61.7,
+        "false_alarm_per_min": 1.58,
+        "mean_lead_s": 6.82,
+        "alert_duty_%": 35.0,
+        "AUC_ROC": 0.56,
+        "AUC_PR": 0.227,
+        "recall_CI95": [
+          57.4,
+          83.0
+        ],
+        "lead_CI95": [
+          6.0,
+          7.6
+        ]
+      },
+      "_n_events": 47
+    },
+    "5.0": {
+      "DS": {
+        "EWR": {
+          "1": 38.9,
+          "3": 38.9,
+          "5": 27.8
+        },
+        "recall": 38.9,
+        "precision": 23.3,
+        "false_alarm_per_min": 2.02,
+        "mean_lead_s": 5.55,
+        "alert_duty_%": 15.9,
+        "AUC_ROC": 0.363,
+        "AUC_PR": 0.039
+      },
+      "DS+G": {
+        "EWR": {
+          "1": 55.6,
+          "3": 44.4,
+          "5": 38.9
+        },
+        "recall": 55.6,
+        "precision": 22.0,
+        "false_alarm_per_min": 2.82,
+        "mean_lead_s": 5.62,
+        "alert_duty_%": 26.6,
+        "AUC_ROC": 0.389,
+        "AUC_PR": 0.041
+      },
+      "DS+Sym": {
+        "EWR": {
+          "1": 55.6,
+          "3": 55.6,
+          "5": 38.9
+        },
+        "recall": 55.6,
+        "precision": 25.0,
+        "false_alarm_per_min": 2.11,
+        "mean_lead_s": 5.93,
+        "alert_duty_%": 18.1,
+        "AUC_ROC": 0.544,
+        "AUC_PR": 0.06
+      },
+      "Full": {
+        "EWR": {
+          "1": 77.8,
+          "3": 61.1,
+          "5": 50.0
+        },
+        "recall": 77.8,
+        "precision": 27.7,
+        "false_alarm_per_min": 2.99,
+        "mean_lead_s": 5.73,
+        "alert_duty_%": 35.0,
+        "AUC_ROC": 0.571,
+        "AUC_PR": 0.066
+      },
+      "_n_events": 18
+    }
+  },
+  "fixed_calib": {
+    "DS": {
+      "EWR": {
+        "1": 0.0,
+        "3": 0.0,
+        "5": 0.0
+      },
+      "recall": 0.0,
+      "precision": 0.0,
+      "false_alarm_per_min": 0.0,
+      "mean_lead_s": 0.0,
+      "alert_duty_%": 0.0,
+      "AUC_ROC": 0.316,
+      "AUC_PR": 0.137
+    },
+    "DS+G": {
+      "EWR": {
+        "1": 0.0,
+        "3": 0.0,
+        "5": 0.0
+      },
+      "recall": 0.0,
+      "precision": 0.0,
+      "false_alarm_per_min": 0.0,
+      "mean_lead_s": 0.0,
+      "alert_duty_%": 0.0,
+      "AUC_ROC": 0.353,
+      "AUC_PR": 0.148
+    },
+    "DS+Sym": {
+      "EWR": {
+        "1": 6.4,
+        "3": 6.4,
+        "5": 4.3
+      },
+      "recall": 6.4,
+      "precision": 66.7,
+      "false_alarm_per_min": 0.09,
+      "mean_lead_s": 6.43,
+      "alert_duty_%": 0.7,
+      "AUC_ROC": 0.47,
+      "AUC_PR": 0.186
+    },
+    "Full": {
+      "EWR": {
+        "1": 14.9,
+        "3": 12.8,
+        "5": 8.5
+      },
+      "recall": 14.9,
+      "precision": 55.6,
+      "false_alarm_per_min": 0.35,
+      "mean_lead_s": 5.63,
+      "alert_duty_%": 6.2,
+      "AUC_ROC": 0.495,
+      "AUC_PR": 0.201
+    },
+    "_n_events": 47
+  }
+}
