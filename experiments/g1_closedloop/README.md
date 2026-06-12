@@ -1,6 +1,6 @@
 # E2 — G1 클로즈드루프 완화 실험
 
-선행경보(HDS)가 **실제 행동을 바꿔 드리프트를 줄이는가**. ICRA 핵심 결과.
+선행경보(HDS)가 **실제 행동을 바꿔 드리프트를 줄이는가**. 
 설계 전문은 [`../../docs/EXPERIMENT_DESIGN.md`](../../docs/EXPERIMENT_DESIGN.md) §3.
 
 ## 구성 파일
