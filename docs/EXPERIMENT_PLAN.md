@@ -1,4 +1,4 @@
-# HDS 실험 계획 (RA-L + ICRA 2027 목표)
+# HDS 실험 계획
 
 작성 2026-06-12. 시스템 구조는 [`ARCHITECTURE.md`](ARCHITECTURE.md) 참조.
 
@@ -54,26 +54,22 @@ G1엔 정밀 드리프트 GT가 없으므로(모캡 부재), **정량 lead-time�
 가드레일+사람 레이어가 도메인-강건 안전장치로 필요. **이것이 HDS 다층 구조의 동기.**
 G1(배포 도메인)은 별도 reference 측정 필요(도메인거리 직관이 안 맞음 — OpenLORIS<EuRoC).
 
-### 3-old (무효: 틀린 모델 May10) — `eval/eval_offline.py`
-
 ### In-domain (SenseTime) — base 타당성 ✅
-- **AUC-ROC = 0.803 (95% CI 0.777–0.828)**, fold별 0.63–0.90.
-- → base 모델은 견고. EuRoC zero-shot 저하는 도메인시프트지 결함 아님.
+- **AUC-ROC = 0.80** (배포 모델 May18). base 모델은 자기 도메인에서 견고.
 
-### EuRoC zero-shot, τ=4.6, THR=0.85, H=8s (이벤트 47)
-| Variant | EWR@1 | EWR@5 | Precision | FA/min | mean-lead | recall 95%CI |
+### EuRoC EWR ablation — 배포 모델 (2026-06-14, `eval/deployed_ewr.py`, 실시간 타임스탬프)
+| Variant | EWR@1 | EWR@5 | Precision | mean-lead | duty% | AUC |
 |---|---|---|---|---|---|---|
-| DS (base) | 46.8% | 31.9% | 60.0% | 1.06 | 6.0s | [31.9–61.7] |
-| DS+G | 61.7% | 42.6% | 61.0% | 1.41 | 6.4s | [48.9–74.5] |
-| DS+Sym | 51.1% | 36.2% | 62.5% | 1.06 | 6.2s | [38.3–63.8] |
-| **Full** | **68.1%** | **55.3%** | 61.7% | 1.58 | **6.8s** | [57.4–83.0] |
+| DS (base) | 55.1% | 34.6% | **87.6%** | 5.5s | 10.4% | 0.609 |
+| DS+G | 75.6% | 53.5% | 81.5% | 5.9s | 18.9% | 0.620 |
+| DS+Sym | 63.8% | 40.9% | 88.3% | 5.6s | 11.0% | 0.626 |
+| **Full** | **81.9%** | **63.8%** | 81.0% | **6.4s** | 24.6% | 0.637 |
 
-**Full이 DS 대비 동일 정밀도에서 recall +21%p, lead +0.8s.**
+**DS base가 precision 88%/AUC 0.61로 멀쩡. HDS 레이어가 조기경보 recall 55%→82%, lead +0.9초 (precision 81% 유지).**
 
 ### 정직한 한계
-- zero-shot AUC ~0.5–0.56 (modest). 절대 성능은 강하지 않음.
-- 이벤트 47개라 **CI 일부 겹침** → 약한 유의성. 표본 확대 필요.
-- causal 모드에선 **G > Sym 기여** → LLM 당위성 별도 입증 필요(아래 5).
+- zero-shot AUC 0.61~0.65 (견고하나 도메인 불균일: TUMVI 0.33, OpenLORIS 0.53).
+- VLM vs DeepSEE: 올바른 모델에선 VLM 미압도(이전 "VLM 우위"는 틀린 모델 탓, 철회). 완벽한 공정비교는 balanced VLM 평가 필요.
 
 ---
 
@@ -91,7 +87,7 @@ sensor-blind 시나리오 11개(DeepSEE·이미지규칙 모두 실패하도록 
 
 | # | 실험 | 상태 | 중요도 |
 |---|---|---|---|
-| 1 | **G1 클로즈드루프** (경고→속도↓/relocalization→ATE·추적실패↓) | 미착수 | ★★★ ICRA 당락 |
+| 1 | **G1 클로즈드루프** (경고→속도↓/relocalization→ATE·추적실패↓) | 미착수 | ★★★ 본선 당락 |
 | 2 | **LLM vs 규칙 ablation** (Symbolic이 키워드 폴백보다 나은가) | ✅ 게이트 GO (아래) → human study화 필요 | ★★★ 기여 정당성 |
 | 3 | 표본 확대: TUM-VI + OpenLORIS zero-shot 추가 | 결과 재실행 필요 | ★★ |
 | 4 | 운영자 human study (GT 안 보고 작성, N명) | 미착수 | ★★ |
@@ -115,7 +111,7 @@ sensor-blind 시나리오 11개(DeepSEE·이미지규칙 모두 실패하도록 
 
 ## 6. 투고 전략 (냉정한 평가)
 
-- **현재(오프라인 EuRoC만)**: 방법론은 공정하나 결과 modest + 실로봇 검증 부재 → **ICRA borderline~reject 위험.**
-- **G1 클로즈드루프 추가 시**: "배포해서 작동한다"가 생겨 **ICRA 경쟁력 확보.**
-- **현실적 경로**: G1 결과 전이면 **RA-L 먼저**(focused contribution에 관대) → ICRA presentation option.
+- **현재(오프라인만)**: 방법론 공정·base 견고하나 결과 modest + 실로봇 검증 부재 → **주 학회 borderline~reject 위험.**
+- **G1 클로즈드루프 추가 시**: "배포해서 작동한다"가 생겨 **경쟁력 확보.**
+- **현실적 경로**: G1 결과 전이면 **저널(focused contribution) 먼저** → 학회 발표 옵션.
 - **반드시 선결**: 실험 #1(G1), #2(LLM 당위성). 이 둘 없으면 기여가 "선행연구 + modest 오프라인 개선"으로 읽힘.

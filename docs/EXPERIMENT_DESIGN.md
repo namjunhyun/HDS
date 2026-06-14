@@ -1,7 +1,7 @@
 # HDS 실험 설계서 (Experiment Design)
 
 **대상 논문**: Human-in-the-Loop Neuro-Symbolic Drift Anticipation for Reliable Visual SLAM
-**목표 투고**: RA-L + ICRA 2027 (presentation option)
+**목표 마감**: ~2026-09
 **작성**: 2026-06-12 · 전략/매트릭스는 [`EXPERIMENT_PLAN.md`](EXPERIMENT_PLAN.md), 구조는 [`ARCHITECTURE.md`](ARCHITECTURE.md)
 
 ---
@@ -55,7 +55,7 @@
 
 ---
 
-## 3. 실험 E2 — G1 클로즈드루프 완화 (가설 H3) ★ ICRA 핵심
+## 3. 실험 E2 — G1 클로즈드루프 완화 (가설 H3) ★ 본선 핵심
 
 선행경보가 **실제 행동을 바꿔 드리프트를 줄이는가**. 로봇 학회의 핵심 증거.
 
@@ -99,9 +99,9 @@
 ### 지표
 EWR@{1,3,5}s, Precision, False-Alarm/min, alert duty%, mean-lead, AUC-ROC/PR, 부트스트랩 95% CI.
 
-### 예비 결과 (EuRoC, τ=4.6, THR=0.85)
-DS recall 46.8% [31.9–61.7] → Full 68.1% [57.4–83.0], lead 6.0→6.8s, precision ~62%.
-**과제**: 이벤트 47개라 CI 넓음 → TUM-VI/OpenLORIS 추가로 표본 확대.
+### 결과 (EuRoC, 배포 모델 May18, `eval/deployed_ewr.py`)
+DS recall(EWR@1) 55.1% (precision 88%, AUC 0.61) → Full 81.9% (precision 81%), lead 5.5→6.4s.
+**해석**: HDS 레이어가 조기경보 recall +27%p·lead +0.9초. 일반화는 도메인 불균일(EuRoC 0.65, TUMVI 0.33).
 
 ---
 
@@ -140,7 +140,7 @@ DeepSEE / DS+G / DS+Sym / Full — 각 레이어의 EWR·precision·lead 기여 
 
 ---
 
-## 8. 실행 순서 & 타임라인 (ICRA 2027, 마감 ~2026-09 가정)
+## 8. 실행 순서 & 타임라인 (마감 ~2026-09 가정)
 
 | 주차 | 작업 | 산출 |
 |---|---|---|

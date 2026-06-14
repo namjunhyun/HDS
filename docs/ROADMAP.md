@@ -1,4 +1,4 @@
-# HDS 로드맵 — ICRA 2027 (~2026-09 마감)
+# HDS 로드맵 (~2026-09 마감)
 
 작성 2026-06-13. 목표: **9월까지 "완벽한 HDS"**(드리프트 예지 + 휴먼-인-더-루프 + 완화) 완성·투고.
 VLA/RL 드리프트-회피 항법은 **장기 비전 → 논문 Future Work**로만. 설계 근거: [`EXPERIMENT_DESIGN.md`](EXPERIMENT_DESIGN.md).
@@ -9,7 +9,7 @@ VLA/RL 드리프트-회피 항법은 **장기 비전 → 논문 Future Work**로
 - **장기 비전**: HDS = 미래 RL/VLA 드리프트-회피 항법의 *보상 oracle*. (지금은 안 함 — 현실적 드리프트 시뮬이 미해결.)
 
 ## 크리티컬 패스
-**G1 클로즈드루프(예측→완화→ATE↓)**가 ICRA 당락 + 최고 리스크 → 조기 착수·조기 de-risk.
+**G1 클로즈드루프(예측→완화→ATE↓)**가 본선 당락 + 최고 리스크 → 조기 착수·조기 de-risk.
 
 ---
 
@@ -36,7 +36,7 @@ VLA/RL 드리프트-회피 항법은 **장기 비전 → 논문 Future Work**로
 ## Phase 3 — 작성 & 마감 (W9–13, 8월–9월)
 - [ ] 그림·표 (in-domain AUC, zero-shot ablation+CI, E1 human study, G1 ATE)
 - [ ] **Future Work**: "HDS as drift-aware reward for end-to-end RL/VLA navigation" (장기 비전을 강점으로)
-- [ ] 한계 정직 기술 (zero-shot modest, sim-to-real, 클라우드 LLM 의존+로컬 폴백)
+- [ ] 한계 정직 기술 (zero-shot 도메인 불균일(TUMVI 0.33), sim-to-real, 클라우드 LLM 의존+로컬 폴백)
 - [ ] 내부 리뷰 / `/code-review ultra` / 초고 → 투고
 
 ---
@@ -44,14 +44,14 @@ VLA/RL 드리프트-회피 항법은 **장기 비전 → 논문 Future Work**로
 ## 리스크 & 대응
 | 리스크 | 영향 | 대응 |
 |---|---|---|
-| G1 클로즈드루프에서 C2가 C1 못 이김 | ICRA 붕괴 | **Phase 0 미니 E2로 조기 확인** → 안 되면 RA-L로 후퇴 또는 재프레임 |
+| G1 클로즈드루프에서 C2가 C1 못 이김 | 본선 붕괴 | **Phase 0 미니 E2로 조기 확인** → 안 되면 저널로 후퇴 또는 재프레임 |
 | reference 궤적 부정확 | ATE 신뢰도↓ | 다중 소스 교차검증 |
 | Human study 운영자 모집 지연 | E1 지연 | W1에 모집 시작, 게이트가 예비 결과로 백업 |
-| zero-shot 수치 modest | 설득력↓ | 표본 확대 + in-domain·G1로 보강, modest는 도메인시프트 동기로 정직 프레이밍 |
+| zero-shot 도메인 불균일(TUMVI 실패) | 설득력↓ | in-domain·G1로 보강, 불균일성은 다층(가드레일+사람) 필요성의 *동기*로 정직 프레이밍 |
 
 ## 투고 결정 게이트 (8월 중순 체크)
-- C2>C1 실로봇 입증 O + E1 유의 O → **ICRA 풀악셀**
-- 둘 중 하나라도 약하면 → **RA-L 우선** (focused contribution)
+- C2>C1 실로봇 입증 O + E1 유의 O → **주 학회 풀악셀**
+- 둘 중 하나라도 약하면 → **저널 우선** (focused contribution)
 
 ## 산출물 매핑 (이미 있음)
 `eval/{eval_offline,gate_llm_vs_rules,make/score_annotations}.py`, `make_ds_calib.py`,
