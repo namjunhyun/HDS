@@ -1,0 +1,41 @@
+{
+  "n_items": 2,
+  "n_experts": 2,
+  "fleiss_kappa": 0.2,
+  "rule_acc": 0.0,
+  "llm_acc": 1.0,
+  "llm_rescue_rate": 1.0,
+  "mcnemar_b": 2,
+  "mcnemar_c": 0,
+  "mcnemar_p": 0.5,
+  "rows": [
+    {
+      "sid": "S001",
+      "op": "P1",
+      "text": "양쪽 벽 타일 무늬가 똑같아서 위치를 자주 헷갈릴 거야",
+      "consensus": "strong_inc",
+      "band": [
+        0.3,
+        0.5
+      ],
+      "rule": 0.1,
+      "rule_ok": false,
+      "llm": 0.45,
+      "llm_ok": true
+    },
+    {
+      "sid": "S002",
+      "op": "P1",
+      "text": "어두워 보이지만 잠깐 그늘이고 바로 밝아져서 추적엔 문제없어",
+      "consensus": "mild_dec",
+      "band": [
+        -0.3,
+        -0.05
+      ],
+      "rule": 0.2,
+      "rule_ok": false,
+      "llm": -0.25,
+      "llm_ok": true
+    }
+  ]
+}

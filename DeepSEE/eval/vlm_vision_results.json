@@ -1,0 +1,14 @@
+{
+  "seq": "MH_04_difficult",
+  "n": 30,
+  "n_events": 15,
+  "VLM": {
+    "AUC": 0.942,
+    "corr_relerr": 0.81
+  },
+  "DeepSEE": {
+    "AUC": 0.129,
+    "corr_relerr": -0.799
+  },
+  "verdict": "VLM이 DeepSEE 이상 → 자율 VLM 강함, DeepSEE-중심 위협"
+}

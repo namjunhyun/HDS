@@ -36,7 +36,25 @@ G1엔 정밀 드리프트 GT가 없으므로(모캡 부재), **정량 lead-time�
 
 ---
 
-## 3. 현재까지 결과 (2026-06-12, `eval/eval_offline.py`)
+## 3. 현재까지 결과
+
+> ⚠️ **정정 (2026-06-14)**: 아래 §3 EuRoC 수치(eval_offline.py, 2026-06-12)는 **배포 모델이 아닌
+> 다른 학습 run(May10=b0afd38)의 zero-shot npy**로 계산된 것 → **무효**. 진짜 배포 모델(May18=ba8cbeb)로
+> 직접 재추론한 **정정 일반화표는 아래 §3-corrected** 참조. (스크립트: `eval/deployed_generalization.py`)
+
+### 3-corrected. 배포 모델(May18) zero-shot 일반화 — 진짜 모델 (2026-06-14)
+| 데이터셋 | corr(est,gt) | AUC@4.6 | 도메인 |
+|---|---|---|---|
+| SenseTime (in-domain) | +0.38 | **0.80** | 학습 |
+| EuRoC | +0.31 | **0.65** | 드론(전이됨) |
+| OpenLORIS | +0.14 | 0.53 | 지상로봇(약함) |
+| TUMVI | −0.30 | **0.33** | 핸드헬드(역상관/실패) |
+
+**해석**: 신경 예측기 전이가 **도메인마다 불균일**(0.33~0.65) → 학습 예측기 단독 신뢰 불가 →
+가드레일+사람 레이어가 도메인-강건 안전장치로 필요. **이것이 HDS 다층 구조의 동기.**
+G1(배포 도메인)은 별도 reference 측정 필요(도메인거리 직관이 안 맞음 — OpenLORIS<EuRoC).
+
+### 3-old (무효: 틀린 모델 May10) — `eval/eval_offline.py`
 
 ### In-domain (SenseTime) — base 타당성 ✅
 - **AUC-ROC = 0.803 (95% CI 0.777–0.828)**, fold별 0.63–0.90.

@@ -1,0 +1,20 @@
+{
+  "EuRoC": {
+    "n": 12056,
+    "events": 2519,
+    "corr_mean": 0.307,
+    "AUC": 0.647
+  },
+  "TUMVI": {
+    "n": 1150,
+    "events": 1015,
+    "corr_mean": -0.296,
+    "AUC": 0.332
+  },
+  "OpenLORIS": {
+    "n": 7255,
+    "events": 1849,
+    "corr_mean": 0.139,
+    "AUC": 0.533
+  }
+}
