@@ -1,0 +1,6 @@
+{
+  "n": 72,
+  "events": 36,
+  "VLM_AUC": 0.641,
+  "DeepSEE_deployed_AUC": 0.926
+}
