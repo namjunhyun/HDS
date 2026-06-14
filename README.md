@@ -37,7 +37,7 @@ HDS_repo/
 └─ docs/                       # 아키텍처 + 실험 설계 + human study 키트
 ```
 
-## Evaluation & Paper (RA-L / ICRA)
+## Evaluation
 
 - **문서**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/EXPERIMENT_PLAN.md`](docs/EXPERIMENT_PLAN.md) · [`docs/EXPERIMENT_DESIGN.md`](docs/EXPERIMENT_DESIGN.md)
 - **오프라인 평가** (`DeepSEE/eval/`): EuRoC zero-shot lead-time / EWR / precision ablation + in-domain 검증 + 부트스트랩 CI — `python3 DeepSEE/eval/eval_offline.py`
