@@ -1,0 +1,30 @@
+{
+  "_meta": {
+    "purpose": "실증1 — 사람만 잡고 VLM·규칙은 못 잡는 케이스를 데이터로 증명 (Language as Cost와의 차별점).",
+    "frame_type": "clean=현재 프레임 정상(위험 시야 밖) / degraded=프레임에 위험 보임",
+    "gt_risky": "1=실제 위험(경보 맞음) / 0=안전(경보 틀림)",
+    "expect": "visible 위험은 VLM도 잡음(사람 불필요). foreknowledge/외양모순은 VLM 구조적 실패→사람만."
+  },
+  "scenarios": [
+    {"id":"V1","cat":"visible_risk","frame_type":"degraded","gt_risky":1,
+     "text":"양쪽 벽 타일 무늬가 똑같아 위치를 헷갈릴 구간이야."},
+    {"id":"V2","cat":"visible_risk","frame_type":"degraded","gt_risky":1,
+     "text":"전면 유리벽이라 반사로 가짜 특징점이 잡힐 거야."},
+    {"id":"V3","cat":"visible_risk","frame_type":"degraded","gt_risky":1,
+     "text":"전방에 매우 어두운 암흑 구간이라 특징 추적이 심하게 저하돼."},
+    {"id":"F1","cat":"foreknowledge","frame_type":"clean","gt_risky":1,
+     "text":"지금은 멀쩡하지만 다음 모퉁이가 역광이라 돌자마자 노출이 폭주할 거야."},
+    {"id":"F2","cat":"memory","frame_type":"clean","gt_risky":1,
+     "text":"지난주 바로 여기서 추적 놓쳤어. 오늘도 같은 시간대라 또 위험해."},
+    {"id":"F3","cat":"future_state","frame_type":"clean","gt_risky":1,
+     "text":"다음 방은 청소 중이라 바닥이 젖어서 반사가 심할 거야."},
+    {"id":"D1","cat":"appearance_contradict","frame_type":"degraded","gt_risky":0,
+     "text":"앞이 어두워 보이지만 사실 검은 커튼이라 곧 지나가고 추적엔 문제없어."},
+    {"id":"D2","cat":"appearance_contradict","frame_type":"degraded","gt_risky":0,
+     "text":"조도계엔 어둡지만 적외선 조명이 켜져 있어 카메라엔 충분히 밝아."},
+    {"id":"C1","cat":"control_safe","frame_type":"clean","gt_risky":0,
+     "text":"조명 양호하고 텍스처 풍부한 안정 구간이라 특별한 위험 없어."},
+    {"id":"C2","cat":"control_risk","frame_type":"degraded","gt_risky":1,
+     "text":"전방 특징점이 거의 없는 무텍스처 벽이라 추적이 빈약해질 거야."}
+  ]
+}

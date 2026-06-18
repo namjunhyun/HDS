@@ -1,0 +1,131 @@
+{
+  "acc": {
+    "rule": 0.5,
+    "vlm": 0.7,
+    "human": 1.0
+  },
+  "blind_recovery": NaN,
+  "overalarm_correction": 1.0,
+  "rows": [
+    {
+      "id": "V1",
+      "cat": "visible_risk",
+      "gt_risky": 1,
+      "frame_type": "degraded",
+      "rule": 0.1,
+      "rflag": 0,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "V2",
+      "cat": "visible_risk",
+      "gt_risky": 1,
+      "frame_type": "degraded",
+      "rule": 0.2,
+      "rflag": 1,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "V3",
+      "cat": "visible_risk",
+      "gt_risky": 1,
+      "frame_type": "degraded",
+      "rule": 0.32,
+      "rflag": 1,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "F1",
+      "cat": "foreknowledge",
+      "gt_risky": 1,
+      "frame_type": "clean",
+      "rule": 0.1,
+      "rflag": 0,
+      "vlm": 0.55,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "F2",
+      "cat": "memory",
+      "gt_risky": 1,
+      "frame_type": "clean",
+      "rule": 0.1,
+      "rflag": 0,
+      "vlm": 0.55,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "F3",
+      "cat": "future_state",
+      "gt_risky": 1,
+      "frame_type": "clean",
+      "rule": 0.2,
+      "rflag": 1,
+      "vlm": 0.55,
+      "vflag": 1,
+      "llm": 0.45,
+      "lflag": 1
+    },
+    {
+      "id": "D1",
+      "cat": "appearance_contradict",
+      "gt_risky": 0,
+      "frame_type": "degraded",
+      "rule": 0.2,
+      "rflag": 1,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": -0.15,
+      "lflag": 0
+    },
+    {
+      "id": "D2",
+      "cat": "appearance_contradict",
+      "gt_risky": 0,
+      "frame_type": "degraded",
+      "rule": 0.2,
+      "rflag": 1,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": -0.15,
+      "lflag": 0
+    },
+    {
+      "id": "C1",
+      "cat": "control_safe",
+      "gt_risky": 0,
+      "frame_type": "clean",
+      "rule": 0.1,
+      "rflag": 0,
+      "vlm": 0.55,
+      "vflag": 1,
+      "llm": -0.2,
+      "lflag": 0
+    },
+    {
+      "id": "C2",
+      "cat": "control_risk",
+      "gt_risky": 1,
+      "frame_type": "degraded",
+      "rule": 0.32,
+      "rflag": 1,
+      "vlm": 0.92,
+      "vflag": 1,
+      "llm": 0.4,
+      "lflag": 1
+    }
+  ]
+}
